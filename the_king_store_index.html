@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The King Store — Neon Brainrot</title>
+  <!-- Tailwind Play CDN for quick styling (suitable for prototype). In production, compile Tailwind. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Neon brainrot background pattern using inline SVG */
+    :root{--neon:#9b6cff}
+    body{background:linear-gradient(180deg,#050007 0%, #140023 60%); color:#eae6ff;}
+    .brain-bg{background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><g fill="none" stroke="rgba(155,108,255,0.08)" stroke-width="2"><path d="M40 80c20-30 60-30 80 0"/><path d="M20 120c30-40 90-40 120 0"/><path d="M60 30c10 20 40 20 60 0"/></g></svg>'); background-repeat:repeat;}
+
+    /* Neon glow buttons */
+    .neon-btn{box-shadow: 0 0 8px rgba(155,108,255,0.35), inset 0 0 8px rgba(155,108,255,0.05); border: 1px solid rgba(155,108,255,0.6);}
+    .neon-btn:hover{box-shadow: 0 0 18px rgba(155,108,255,0.6), inset 0 0 12px rgba(155,108,255,0.08); transform:translateY(-2px)}
+
+    /* Modal backdrop */
+    .modal-backdrop{background:rgba(0,0,0,0.6);backdrop-filter: blur(4px);} 
+
+    /* small utility */
+    .glow-text{text-shadow:0 0 8px rgba(155,108,255,0.6);}    
+  </style>
+</head>
+<body class="min-h-screen brain-bg">
+  <header class="max-w-5xl mx-auto py-6 px-4 flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-extrabold glow-text">THE KING STORE</h1>
+      <p class="text-sm opacity-80">Estética neon • brainrot • produtos exclusivos</p>
+    </div>
+    <nav class="space-x-4">
+      <button id="btn-avaliacoes" class="neon-btn px-4 py-2 rounded-md">Avaliações</button>
+      <button id="btn-sobre" class="neon-btn px-4 py-2 rounded-md">Sobre nós</button>
+      <!-- Chat button intentionally removed from header per spec -->
+    </nav>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4">
+    <!-- Banner -->
+    <section class="rounded-2xl p-8 mb-8" style="background:linear-gradient(90deg, rgba(23,6,39,0.7), rgba(31,8,50,0.55)); border:1px solid rgba(155,108,255,0.12)">
+      <h2 class="text-4xl font-black" style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto">THE KING STORE — Produtos exclusivos</h2>
+      <p class="mt-2 italic opacity-80">Fundo neon, padrões de cérebro, glow e vibes brainrot.</p>
+    </section>
+
+    <!-- Produtos (sem imagens) -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Product Card Template -->
+      <div class="p-6 rounded-xl border border-gray-800 bg-gradient-to-br from-black/30 to-purple-900/10">
+        <h3 class="text-xl font-bold">Urso da Mac Donalds</h3>
+        <p class="mt-2">Preço: <strong>R$ 3,00</strong></p>
+        <p>Estoque: <span id="stock-urso">2</span></p>
+        <p class="text-sm mt-2 opacity-80">Sem imagem — design minimal.</p>
+        <button class="mt-4 neon-btn px-4 py-2 rounded-md" onclick="openCheckout('Urso da Mac Donalds',3, 'stock-urso')">Comprar</button>
+      </div>
+
+      <div class="p-6 rounded-xl border border-gray-800 bg-gradient-to-br from-black/30 to-purple-900/10">
+        <h3 class="text-xl font-bold">Esok Money</h3>
+        <p class="mt-2">Preço: <strong>R$ 1,00</strong></p>
+        <p>Estoque: <span id="stock-esok">2</span></p>
+        <p class="text-sm mt-2 opacity-80">Sem imagem — apenas ênfase no texto.</p>
+        <button class="mt-4 neon-btn px-4 py-2 rounded-md" onclick="openCheckout('Esok Money',1, 'stock-esok')">Comprar</button>
+      </div>
+
+      <div class="p-6 rounded-xl border border-gray-800 bg-gradient-to-br from-black/30 to-purple-900/10">
+        <h3 class="text-xl font-bold">Dug dug dug elétrico</h3>
+        <p class="mt-2">Preço: <strong>R$ 0,25</strong></p>
+        <p>Estoque: <span id="stock-dug">1</span></p>
+        <p class="text-sm mt-2 opacity-80">Sem imagem.</p>
+        <button class="mt-4 neon-btn px-4 py-2 rounded-md" onclick="openCheckout('Dug dug dug elétrico',0.25, 'stock-dug')">Comprar</button>
+      </div>
+    </section>
+
+    <!-- Avaliações (section opened by button) -->
+    <section id="avaliacoes-section" class="hidden mb-8 p-6 rounded-xl border border-gray-800 bg-black/30">
+      <h3 class="text-2xl font-bold">Avaliações</h3>
+      <form id="form-avaliacao" class="mt-4 grid gap-3">
+        <input placeholder="Apelido" id="apelido" class="p-2 rounded bg-gray-900/60" />
+        <select id="nota" class="p-2 rounded bg-gray-900/60">
+          <option value="5">5 estrelas</option>
+          <option value="4">4 estrelas</option>
+          <option value="3">3 estrelas</option>
+          <option value="2">2 estrelas</option>
+          <option value="1">1 estrela</option>
+        </select>
+        <textarea id="comentario" placeholder="Comentário (opcional)" class="p-2 rounded bg-gray-900/60"></textarea>
+        <input type="file" id="foto-avaliacao" accept="image/*" />
+        <button type="button" class="neon-btn px-4 py-2 rounded-md" onclick="enviarAvaliacao()">Enviar avaliação</button>
+      </form>
+      <div id="lista-avaliacoes" class="mt-6 space-y-4"></div>
+    </section>
+
+    <!-- Sobre nós -->
+    <section id="sobre-section" class="hidden mb-8 p-6 rounded-xl border border-gray-800 bg-black/30">
+      <h3 class="text-2xl font-bold">Sobre nós</h3>
+      <p class="mt-3">"<strong>The King Store</strong> — loja online com estética neon e produtos exclusivos. Trabalhamos com envios rápidos e atendimento direto. Para pagamentos aceitamos PIX; a chave completa aparece somente no checkout e o proprietário confirma manualmente cada pagamento."</p>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-5xl mx-auto p-6 text-sm opacity-80">
+    <div class="flex justify-between items-center">
+      <div>Discord / Instagram / E-mail (links)</div>
+      <div>Pedidos são processados somente após confirmação manual do pagamento pelo administrador.</div>
+    </div>
+  </footer>
+
+  <!-- Floating Chat (hidden until order confirmed) -->
+  <div id="chat-widget" class="fixed right-6 bottom-6 hidden">
+    <div class="w-80 bg-gradient-to-br from-black/60 to-purple-900/60 rounded-2xl p-4 border border-gray-800">
+      <h4 class="font-bold">Suporte — Chat</h4>
+      <p class="text-xs opacity-70">Apenas disponível após confirmação de pagamento.</p>
+      <div id="chat-messages" class="mt-3 h-36 overflow-auto text-sm"></div>
+      <div class="mt-3 flex gap-2">
+        <input id="chat-input" class="flex-1 p-2 rounded bg-gray-900/50" placeholder="Escreva..." />
+        <button class="neon-btn px-3 rounded" onclick="sendChat()">Enviar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div id="modal" class="fixed inset-0 flex items-center justify-center hidden">
+    <div class="modal-backdrop absolute inset-0"></div>
+    <div class="relative z-10 w-full max-w-2xl p-6 rounded-2xl bg-gradient-to-br from-black/80 to-purple-950/60 border border-gray-800">
+      <button class="absolute right-4 top-4 text-sm" onclick="closeModal()">Fechar ✕</button>
+      <h3 class="text-2xl font-bold mb-2">Checkout</h3>
+      <div id="pedido-resumo" class="mb-4"></div>
+
+      <!-- QR + PIX details -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <div id="qrcode" class="p-3 bg-white/5 rounded-md"></div>
+          <p class="mt-2 text-xs opacity-60">Chave PIX legível:</p>
+          <div class="mt-1 text-sm p-2 rounded bg-gray-900/40">Nome: <strong>Carlos Frederico Diogenes Mariz</strong><br>CPF: <strong>122.484.544-73</strong></div>
+        </div>
+
+        <div>
+          <label class="text-sm">Quantidade (máx disponível)</label>
+          <input id="qtde" type="number" min="1" value="1" class="w-full p-2 rounded bg-gray-900/60 mb-2" />
+          <p class="text-xs opacity-70">Envie o comprovante de pagamento (imagem ou arquivo). Pode enviar de celular ou PC.</p>
+          <input id="comprovante" type="file" accept="image/*,application/pdf" capture class="mt-2 p-2 bg-gray-900/60 rounded w-full" />
+          <button class="mt-3 neon-btn px-4 py-2 rounded-md" onclick="enviarComprovante()">Enviar comprovante</button>
+          <div id="upload-status" class="mt-2 text-sm opacity-70"></div>
+
+          <div class="mt-4">
+            <p class="text-xs opacity-70">Status do pedido:</p>
+            <div id="order-status" class="mt-1 p-2 rounded bg-gray-900/50">Nenhum pedido</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin confirm (hidden) -->
+      <div class="mt-4 border-t pt-4">
+        <details>
+          <summary class="cursor-pointer">Painel do administrador (confirmação manual)</summary>
+          <p class="text-xs opacity-70 mt-2">Apenas o proprietário deve confirmar pagamentos manualmente. Aqui é um protótipo: clique em "Confirmar pagamento" para simular.</p>
+          <button class="mt-2 neon-btn px-4 py-2 rounded-md" onclick="adminConfirm()">Confirmar pagamento</button>
+        </details>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    // PIX payload provided by user (static in this prototype)
+    const PIX_PAYLOAD = `00020101021126580014br.gov.bcb.pix01363ab4cbc2-39b2-48ed-9134-bb21218a70aa5204000053039865802BR5916CARLOS F D MARIZ6005NATAL62070503***6304B8FB`;
+
+    // State
+    let currentOrder = null;
+
+    function openCheckout(name, price, stockId){
+      const stock = Number(document.getElementById(stockId).textContent || 0);
+      if(stock <= 0){alert('Produto sem estoque'); return}
+      currentOrder = {name, price, stockId, stock};
+      document.getElementById('pedido-resumo').innerHTML = `<strong>${name}</strong><div class='mt-2'>Preço unitário: R$ ${price.toFixed(2)}<br>Estoque disponível: ${stock}</div>`;
+      document.getElementById('qtde').value = 1;
+      document.getElementById('order-status').textContent = 'Aguardando pagamento';
+      // generate QR
+      document.getElementById('qrcode').innerHTML = '';
+      new QRCode(document.getElementById('qrcode'), {text:PIX_PAYLOAD, width:180, height:180});
+      document.getElementById('modal').classList.remove('hidden');
+    }
+
+    function closeModal(){ document.getElementById('modal').classList.add('hidden'); }
+
+    function enviarComprovante(){
+      const fileInput = document.getElementById('comprovante');
+      if(!fileInput.files || fileInput.files.length===0){ alert('Selecione um arquivo com o comprovante'); return }
+      const f = fileInput.files[0];
+      // store in localStorage as a demo (in real site upload to server/storage)
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const payload = {order: currentOrder, qtde: Number(document.getElementById('qtde').value), filename: f.name, fileData: e.target.result, status: 'Aguardando confirmação'};
+        localStorage.setItem('lastOrder', JSON.stringify(payload));
+        document.getElementById('upload-status').textContent = 'Comprovante enviado. Pedido: Aguardando pagamento (confirmação manual).';
+        document.getElementById('order-status').textContent = 'Aguardando confirmação';
+        // reduce stock locally for demo
+        const stockEl = document.getElementById(currentOrder.stockId);
+        stockEl.textContent = Math.max(0, Number(stockEl.textContent) - Number(document.getElementById('qtde').value));
+      };
+      reader.readAsDataURL(f);
+    }
+
+    function adminConfirm(){
+      // simulate admin confirming
+      const stored = JSON.parse(localStorage.getItem('lastOrder') || 'null');
+      if(!stored){ alert('Nenhum pedido para confirmar.'); return }
+      stored.status = 'Pago - Confirmado';
+      localStorage.setItem('lastOrder', JSON.stringify(stored));
+      document.getElementById('order-status').textContent = 'Pago - Confirmado';
+      // show chat widget now that payment is confirmed
+      document.getElementById('chat-widget').classList.remove('hidden');
+      alert('Pagamento confirmado — chat liberado.');
+    }
+
+    // Simple chat mock
+    function sendChat(){
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim(); if(!text) return; input.value='';
+      const container = document.getElementById('chat-messages');
+      const el = document.createElement('div'); el.className='mb-2'; el.textContent = 'Você: ' + text; container.appendChild(el); container.scrollTop = container.scrollHeight;
+    }
+
+    // Avaliações
+    function enviarAvaliacao(){
+      const apelido = document.getElementById('apelido').value || 'Anônimo';
+      const nota = document.getElementById('nota').value;
+      const comentario = document.getElementById('comentario').value;
+      const foto = document.getElementById('foto-avaliacao').files[0];
+      const li = document.createElement('div'); li.className='p-3 rounded bg-gray-900/40';
+      li.innerHTML = `<strong>${apelido}</strong> — ${nota} estrelas<br><div class='mt-1 text-sm opacity-80'>${comentario || ''}</div>`;
+      if(foto){ const fr = new FileReader(); fr.onload = e => { const img = document.createElement('img'); img.src = e.target.result; img.className='mt-2 w-28 rounded'; li.appendChild(img); }; fr.readAsDataURL(foto); }
+      document.getElementById('lista-avaliacoes').prepend(li);
+      document.getElementById('form-avaliacao').reset();
+    }
+
+    // Controls for top nav
+    document.getElementById('btn-avaliacoes').addEventListener('click', ()=>{ document.getElementById('avaliacoes-section').classList.toggle('hidden')});
+    document.getElementById('btn-sobre').addEventListener('click', ()=>{ document.getElementById('sobre-section').classList.toggle('hidden')});
+
+    // On load, if there's a confirmed order in localStorage, show chat
+    window.addEventListener('load', ()=>{
+      const stored = JSON.parse(localStorage.getItem('lastOrder') || 'null');
+      if(stored && stored.status === 'Pago - Confirmado'){
+        document.getElementById('chat-widget').classList.remove('hidden');
+        document.getElementById('order-status').textContent = 'Pago - Confirmado (pedido anterior)';
+      }
+    });
+
+  </script>
+</body>
+</html>
